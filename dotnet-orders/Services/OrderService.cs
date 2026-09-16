@@ -55,7 +55,7 @@ public class OrderService
             decimal rawSubtotal = lines.Sum(l => l.LineSubtotal);
             if (rawSubtotal < coupon.MinPurchaseAmount)
                 throw new CouponInvalidException(
-                    $"El cupón '{request.CouponCode}' requiere una compra mínima de {coupon.MinPurchaseAmount:C0}.");
+                    $"El cupón '{request.CouponCode}' requiere una compra mínima de ${coupon.MinPurchaseAmount:N0}.");
         }
 
         var discountResult = _discountEngine.Calculate(new DiscountContext(lines, historicalTotal, coupon));

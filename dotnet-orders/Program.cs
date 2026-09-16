@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using EFCore.NamingConventions;
 using OrdersApi.Data;
 using OrdersApi.Services;
 using OrdersApi.Services.Discounts;
@@ -15,7 +16,8 @@ builder.Services.AddSwaggerGen(c =>
 // Variables de entorno para configuración — nunca credenciales hardcodeadas (sección 8).
 var connectionString = builder.Configuration.GetConnectionString("Default")
     ?? throw new InvalidOperationException("Falta configurar ConnectionStrings__Default.");
-builder.Services.AddDbContext<OrdersDbContext>(options => options.UseNpgsql(connectionString));
+builder.Services.AddDbContext<OrdersDbContext>(options =>
+    options.UseNpgsql(connectionString).UseSnakeCaseNamingConvention());
 
 builder.Services.AddScoped<IVolumeDiscountRule, VolumeDiscountRule>();
 builder.Services.AddScoped<ILoyaltyDiscountRule, LoyaltyDiscountRule>();
