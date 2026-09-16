@@ -1,0 +1,56 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: syc
+      POSTGRES_PASSWORD: syc_dev_pass
+      POSTGRES_DB: syc_orders
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U syc -d syc_orders"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  node-catalog:
+    build: ./node-catalog
+    environment:
+      PORT: 4000
+      DATABASE_URL: postgres://syc:syc_dev_pass@postgres:5432/syc_orders
+    ports:
+      - "4000:4000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  dotnet-orders:
+    build: ./dotnet-orders
+    environment:
+      ASPNETCORE_URLS: http://+:5000
+      ConnectionStrings__Default: "Host=postgres;Port=5432;Database=syc_orders;Username=syc;Password=syc_dev_pass"
+      CatalogService__BaseUrl: "http://node-catalog:4000"
+    ports:
+      - "5000:5000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      node-catalog:
+        condition: service_started
+
+  frontend:
+    build: ./frontend
+    environment:
+      VITE_ORDERS_API_URL: http://localhost:5000
+      VITE_CATALOG_API_URL: http://localhost:4000
+    ports:
+      - "5173:80"
+    depends_on:
+      - dotnet-orders
+      - node-catalog
+
+volumes:
+  pgdata:
