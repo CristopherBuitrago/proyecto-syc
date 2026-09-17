@@ -23,6 +23,10 @@ public class OrdersController : ControllerBase
             var order = await _orderService.CreateOrderAsync(request);
             return CreatedAtAction(nameof(GetById), new { id = order.Id }, order);
         }
+        catch (InvalidOrderException ex)
+        {
+            return BadRequest(new ApiError(ex.Message, "INVALID_ORDER"));
+        }
         catch (CustomerNotFoundException ex)
         {
             return NotFound(new ApiError(ex.Message, "CUSTOMER_NOT_FOUND"));

@@ -1,0 +1,259 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, sans-serif;
+  background: #f5f5f5;
+  color: #222;
+}
+
+svg {
+  flex-shrink: 0;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 12px 24px;
+  background: #1f2937;
+  color: white;
+}
+
+.header-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: bold;
+}
+
+.header-nav {
+  display: flex;
+  gap: 16px;
+  flex: 1;
+}
+
+.header-nav a {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #d1d5db;
+  text-decoration: none;
+}
+
+.header-nav a.active {
+  color: white;
+  font-weight: bold;
+}
+
+.header-session {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.page {
+  max-width: 900px;
+  margin: 24px auto;
+  padding: 0 16px;
+}
+
+.page-title-success {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #16a34a;
+}
+
+.empty-state {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #6b7280;
+}
+
+.button-row {
+  display: flex;
+  gap: 8px;
+}
+
+.product-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 16px 0;
+  background: white;
+}
+
+.product-table th,
+.product-table td {
+  padding: 8px 12px;
+  border-bottom: 1px solid #e5e7eb;
+  text-align: left;
+}
+
+.product-table input[type="number"] {
+  width: 70px;
+}
+
+button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  background: #2563eb;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 4px;
+}
+
+button:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+}
+
+.button-danger {
+  background: #dc2626;
+}
+
+.draft-summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #eef2ff;
+  padding: 12px 16px;
+  border-radius: 4px;
+}
+
+.draft-summary-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.error-banner {
+  background: #fee2e2;
+  color: #991b1b;
+  padding: 12px 16px;
+  border-radius: 4px;
+  margin: 12px 0;
+}
+
+.error-banner-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.error-banner-header p {
+  margin: 0;
+}
+
+.coupon-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-width: 300px;
+  margin: 16px 0;
+}
+
+.coupon-field label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.coupon-field select {
+  padding: 8px;
+  border-radius: 4px;
+  border: 1px solid #d1d5db;
+}
+
+.coupon-empty-hint {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #6b7280;
+  font-size: 0.9em;
+  margin: 4px 0 0;
+}
+
+.discount-breakdown {
+  background: white;
+  padding: 12px 16px;
+  border-radius: 4px;
+  margin: 16px 0;
+}
+
+.discount-breakdown-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: bold;
+  margin-bottom: 8px;
+  color: #6b7280;
+}
+
+.discount-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 0;
+}
+
+.discount-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.discount-applied {
+  color: #16a34a;
+}
+
+.discount-total {
+  font-weight: bold;
+  border-top: 1px solid #e5e7eb;
+  margin-top: 4px;
+  padding-top: 8px;
+}
+
+.order-list {
+  list-style: none;
+  padding: 0;
+}
+
+.order-item {
+  background: white;
+  border-radius: 4px;
+  margin-bottom: 8px;
+  overflow: hidden;
+}
+
+.order-summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  cursor: pointer;
+}
+
+.order-detail {
+  padding: 0 16px 16px;
+}
+
+.status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: bold;
+}
+
+.status-confirmed {
+  color: #16a34a;
+}
+
+.status-cancelled {
+  color: #991b1b;
+}

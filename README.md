@@ -8,10 +8,12 @@ Las decisiones de diseño y su justificación (motor de descuentos, manejo de co
 
 | Servicio | Carpeta | Responsabilidad | Puerto |
 |---|---|---|---|
-| **Orders & Discount Engine** | `dotnet-orders/` | .NET 8 / ASP.NET Core + EF Core. Crear/consultar/listar/cancelar pedidos, motor de descuentos (volumen + nivel de cliente + cupón), valida stock contra el servicio Node antes de confirmar. | `5000` |
-| **Catalog & Inventory** | `node-catalog/` | Node.js + Express. CRUD de productos, reserva y liberación de stock con locking pesimista (`SELECT ... FOR UPDATE`) para evitar condiciones de carrera. | `4000` |
-| **Frontend** | `frontend/` | React. Catálogo, creación de pedidos con desglose de descuentos, historial. **Pendiente de construir** (ver estado actual más abajo). | `5173` |
+| **Orders & Discount Engine** | [`dotnet-orders/`](./dotnet-orders/README.md) | .NET 8 / ASP.NET Core + EF Core. Crear/consultar/listar/cancelar pedidos, motor de descuentos (volumen + nivel de cliente + cupón), valida stock contra el servicio Node antes de confirmar. | `5000` |
+| **Catalog & Inventory** | [`node-catalog/`](./node-catalog/README.md) | Node.js + Express. CRUD de productos, reserva y liberación de stock con locking pesimista (`SELECT ... FOR UPDATE`) para evitar condiciones de carrera. | `4000` |
+| **Frontend** | [`frontend/`](./frontend/README.md) | React + Vite. Catálogo, creación de pedidos con desglose de descuentos visible, historial con cancelación. | `5173` |
 | **Base de datos** | `db/init.sql` | PostgreSQL 16. Esquema + datos semilla, se ejecuta automático al levantar el contenedor. | `5432` |
+
+Cada servicio tiene su propio README con el detalle de arquitectura aplicada y función de cada carpeta — este README raíz solo cubre cómo levantar y operar el sistema completo.
 
 ## Requisitos previos
 
@@ -20,23 +22,18 @@ Las decisiones de diseño y su justificación (motor de descuentos, manejo de co
 
 ## Cómo levantar el proyecto
 
-> **Estado actual:** el servicio `frontend` todavía no existe como carpeta, así que `docker-compose up` sin argumentos fallará intentando construir esa imagen. Mientras tanto, levanta solo los servicios ya construidos:
-
-```bash
-docker-compose up --build postgres node-catalog dotnet-orders
-```
-
-Una vez exista `frontend/` (ver pendientes), el comando definitivo para levantar **todo** el sistema con un solo paso será:
+Levanta los 4 servicios con un solo comando:
 
 ```bash
 docker-compose up --build
 ```
 
-Esto levanta, en orden (Postgres primero, luego Node, luego .NET, que depende de ambos):
+Esto levanta, en orden (Postgres primero, luego Node, luego .NET, que depende de ambos, luego el frontend):
 
 - Postgres en `localhost:5432` (usuario `syc`, base `syc_orders`), con el esquema y datos de ejemplo ya cargados desde `db/init.sql`.
 - Catalog & Inventory en `http://localhost:4000`.
 - Orders & Discount Engine en `http://localhost:5000`, con Swagger en `http://localhost:5000/swagger`.
+- Frontend en `http://localhost:5173`.
 
 Para bajar todo (y borrar el volumen de datos, si se quiere empezar de cero):
 
@@ -111,6 +108,5 @@ dotnet test
 - [x] Servicio Node (catálogo + inventario + concurrencia).
 - [x] Servicio .NET (pedidos + motor de descuentos + pruebas unitarias).
 - [x] `DECISIONS.md` con las decisiones de diseño obligatorias.
-- [ ] Frontend React.
+- [x] Frontend React (catálogo, crear pedido, historial), con `docker-compose up --build` levantando los 4 servicios.
 - [ ] Colección Postman (o exportar el OpenAPI de Swagger).
-- [ ] Ajustar `docker-compose.yml` una vez exista `frontend/` (el bloque ya está preparado, solo falta el código).

@@ -22,16 +22,21 @@ router.post("/reserve", async (req, res, next) => {
   const client = await pool.connect();
   try {
     const items = req.body.items;
+
+    // Validación básica de entrada
     if (!Array.isArray(items) || items.length === 0) {
       throw new ApiError(400, "items debe ser un arreglo no vacío.", "VALIDATION_ERROR");
     }
 
+    // Inicia la transacción
     await client.query("BEGIN");
 
-    const failedItems = [];
-    const lockedStock = new Map();
+    const failedItems = []; // Para almacenar productos con stock insuficiente
+    const lockedStock = new Map(); // Para almacenar el stock bloqueado de cada producto
 
+    // Bloquea y verifica el stock de cada producto
     for (const { productId, quantity } of items) {
+      // Bloquea la fila del producto para evitar que otros procesos modifiquen el stock mientras verificamos
       const { rows } = await client.query("SELECT stock FROM products WHERE id = $1 FOR UPDATE", [productId]);
       if (rows.length === 0) {
         await client.query("ROLLBACK");
@@ -43,15 +48,18 @@ router.post("/reserve", async (req, res, next) => {
       }
     }
 
+    // Si hay productos con stock insuficiente, hacemos rollback y lanzamos un error
     if (failedItems.length > 0) {
       await client.query("ROLLBACK");
       throw new ApiError(409, "Stock insuficiente para uno o más productos.", "STOCK_UNAVAILABLE", { failedItems });
     }
 
+    // Actualiza el stock de los productos reservados
     for (const { productId, quantity } of items) {
       await client.query("UPDATE products SET stock = stock - $1, updated_at = now() WHERE id = $2", [quantity, productId]);
     }
 
+    // Commit de la transacción
     await client.query("COMMIT");
     res.json({ reserved: true });
   } catch (err) {
@@ -62,6 +70,7 @@ router.post("/reserve", async (req, res, next) => {
   }
 });
 
+// Endpoint para liberar stock reservado (por ejemplo, si un pedido se cancela)
 router.post("/release", async (req, res, next) => {
   const client = await pool.connect();
   try {

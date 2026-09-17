@@ -129,3 +129,13 @@ Este documento explica el *por qué* detrás de las decisiones técnicas del pro
 4. El caso especial del cupón (competir contra el resto en vez de sumarse) dejaría de ser un `if` hardcodeado para "cupón" específicamente, y se modelaría como una propiedad genérica de la regla (ej. `bool IsExclusive` + un método `Compare(...)`) — así, si en el futuro apareciera *otra* regla con el mismo comportamiento de "reemplaza si conviene más" (no solo el cupón), el motor ya sabría manejarla sin lógica especial por tipo.
 
 **Conclusión:** la base ya está orientada en esa dirección (interfaces + DI para 2 de las 3 reglas), y el camino hacia el patrón completo está claro y documentado acá — no implementarlo ahora fue una decisión consciente de alcance, no una limitación técnica ni un olvido.
+
+---
+
+## 8. (Extra) Frontend: sesión de cliente simulada, no un selector estilo admin
+
+**Decisión:** el frontend no le pide al usuario elegir un `customerId` cada vez que crea un pedido, como si fuera un panel de administrador armando pedidos para terceros. En su lugar, hay un selector de "¿quién eres?" una sola vez por sesión (usando `GET /api/customers`), guardado en contexto/`localStorage`, y a partir de ahí toda la app opera como ese cliente: "Crear pedido" no vuelve a preguntar de quién es el pedido, y "Historial" filtra automáticamente por ese cliente (`GET /api/orders?customerId=...`).
+
+**Por qué:** el enunciado pide una experiencia de cliente pidiendo su propio pedido, no de un operador gestionando pedidos ajenos — mostrar un dropdown de "elige cualquier cliente" en cada pedido rompe esa ilusión y se ve como herramienta interna, no como app de cara al cliente.
+
+**Por qué no es autenticación real:** JWT/login están listados en el enunciado como extra opcional, no prioritario. Implementar auth real (hashing de contraseñas, tokens, middleware de autorización) no aporta a la nota del motor de descuentos (55% de la rúbrica) y sí consume tiempo con plazo ya ajustado. La sesión simulada da la UX correcta sin ese costo — es una decisión de alcance consciente, no un intento fallido de hacer auth real.

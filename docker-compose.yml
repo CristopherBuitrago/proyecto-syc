@@ -42,10 +42,14 @@ services:
         condition: service_started
 
   frontend:
-    build: ./frontend
-    environment:
-      VITE_ORDERS_API_URL: http://localhost:5000
-      VITE_CATALOG_API_URL: http://localhost:4000
+    build:
+      context: ./frontend
+      # Vite sustituye import.meta.env.VITE_* en tiempo de BUILD, no en runtime — el
+      # contenedor final solo sirve estáticos con nginx, así que estas variables deben
+      # llegar como build args, no como `environment` (ver frontend/Dockerfile).
+      args:
+        VITE_ORDERS_API_URL: http://localhost:5000
+        VITE_CATALOG_API_URL: http://localhost:4000
     ports:
       - "5173:80"
     depends_on:

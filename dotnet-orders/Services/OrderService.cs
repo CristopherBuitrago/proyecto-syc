@@ -23,6 +23,13 @@ public class OrderService
 
     public async Task<OrderResponse> CreateOrderAsync(CreateOrderRequest request)
     {
+        if (request.Items is null || request.Items.Count == 0)
+            throw new InvalidOrderException("El pedido debe tener al menos un producto.");
+
+        var invalidItem = request.Items.FirstOrDefault(i => i.Quantity <= 0);
+        if (invalidItem is not null)
+            throw new InvalidOrderException($"La cantidad del producto {invalidItem.ProductId} debe ser mayor a cero.");
+
         var customer = await _db.Customers.FindAsync(request.CustomerId)
             ?? throw new CustomerNotFoundException(request.CustomerId);
 
