@@ -61,6 +61,7 @@ router.post("/reserve", async (req, res, next) => {
 
     // Commit de la transacción
     await client.query("COMMIT");
+    console.log(`[RESERVE] ${items.map((i) => `producto ${i.productId} x${i.quantity}`).join(", ")}`);
     res.json({ reserved: true });
   } catch (err) {
     try { await client.query("ROLLBACK"); } catch { /* ya se hizo rollback arriba */ }
@@ -91,6 +92,7 @@ router.post("/release", async (req, res, next) => {
       }
     }
     await client.query("COMMIT");
+    console.log(`[RELEASE] ${items.map((i) => `producto ${i.productId} x${i.quantity}`).join(", ")}`);
     res.json({ released: true });
   } catch (err) {
     try { await client.query("ROLLBACK"); } catch { /* ya se hizo rollback arriba */ }

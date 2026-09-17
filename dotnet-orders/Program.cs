@@ -19,7 +19,8 @@ builder.Services.AddSwaggerGen(c =>
 var connectionString = builder.Configuration.GetConnectionString("Default")
     ?? throw new InvalidOperationException("Falta configurar ConnectionStrings__Default.");
 builder.Services.AddDbContext<OrdersDbContext>(options =>
-    options.UseNpgsql(connectionString).UseSnakeCaseNamingConvention());
+    options.UseNpgsql(connectionString, npgsql => npgsql.UseQuerySplittingBehavior(QuerySplittingBehavior.SingleQuery))
+        .UseSnakeCaseNamingConvention());
 
 builder.Services.AddScoped<IVolumeDiscountRule, VolumeDiscountRule>();
 builder.Services.AddScoped<ILoyaltyDiscountRule, LoyaltyDiscountRule>();

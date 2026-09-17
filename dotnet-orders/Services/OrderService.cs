@@ -120,6 +120,11 @@ public class OrderService
             await _db.SaveChangesAsync();
             await transaction.CommitAsync();
 
+            _logger.LogInformation(
+                "Pedido {OrderId} creado para cliente {CustomerId}: subtotal {Subtotal}, descuento total {TotalDiscount}, total final {TotalFinal}. Descuentos aplicados: {Discounts}",
+                order.Id, order.CustomerId, order.Subtotal, order.TotalDiscount, order.TotalFinal,
+                string.Join(", ", discountResult.AppliedDiscounts.Select(d => $"{d.Type}={d.Amount:N0}")));
+
             return await GetOrderResponseAsync(order.Id, products);
         }
         catch
@@ -172,6 +177,8 @@ public class OrderService
 
         var releaseItems = order.Items.Select(i => new ReserveItem(i.ProductId, i.Quantity)).ToList();
         await _catalogClient.ReleaseAsync(releaseItems);
+
+        _logger.LogInformation("Pedido {OrderId} cancelado, stock liberado.", order.Id);
 
         var products = await _db.Products.ToDictionaryAsync(p => p.Id);
         return MapToResponse(order, products);
