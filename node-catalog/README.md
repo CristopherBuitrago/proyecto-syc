@@ -29,3 +29,17 @@ npm install
 npm run dev
 ```
 Necesita `DATABASE_URL` apuntando a Postgres (ver `docker-compose.yml` para el formato). Health check en `GET /health`.
+
+## Documentación de la API
+
+Colección de Postman en [`postman_collection.json`](./postman_collection.json) — impórtala directo en Postman o Insomnia. Cubre los 5 endpoints, incluyendo casos de error esperados (SKU duplicado, stock insuficiente) para probar el manejo de errores sin tener que provocarlo a mano. La variable `baseUrl` ya apunta a `http://localhost:4000` (el puerto publicado por `docker-compose.yml`).
+
+Se eligió Postman en vez de Swagger para este servicio a propósito: agregar `swagger-ui-express` + anotaciones habría sido una dependencia nueva solo para documentación, en un servicio que ya decidimos mantener deliberadamente liviano (ver `DECISIONS.md`, punto 2). El `.NET` sí tiene Swagger interactivo en `/swagger` porque ya usa un framework (ASP.NET Core) que lo trae integrado sin costo adicional.
+
+## Pruebas
+
+```bash
+npm install
+npm test
+```
+Incluye una prueba de integración real de concurrencia (`src/inventory.concurrency.test.js`): dispara reservas simultáneas contra el servicio y Postgres corriendo de verdad, y comprueba que el stock nunca queda negativo. **Requiere que el servicio y Postgres ya estén corriendo** (vía `docker-compose up`, o Postgres local + `npm run dev`).

@@ -58,6 +58,14 @@ dotnet run
 ```
 La configuración local ya está en `appsettings.Development.json` (conexión a `localhost:5432` y `CatalogService:BaseUrl` a `localhost:4000`) — solo asegúrate de tener Postgres y Node corriendo antes.
 
+**Frontend (`frontend/`):**
+```bash
+cd frontend
+npm install
+npm run dev
+```
+Sirve en `http://localhost:5173` (Vite dev server), apuntando por defecto a `localhost:5000`/`localhost:4000` — ver los valores por defecto en `src/api/client.js`.
+
 ## Variables de entorno
 
 | Variable | Servicio | Descripción |
@@ -67,8 +75,12 @@ La configuración local ya está en `appsettings.Development.json` (conexión a 
 | `ConnectionStrings__Default` | .NET | Cadena de conexión a Postgres. |
 | `CatalogService__BaseUrl` | .NET | URL base del servicio Node, para validar/reservar stock. |
 | `ASPNETCORE_URLS` | .NET | URL de escucha del servidor Kestrel. |
+| `VITE_ORDERS_API_URL` | Frontend | URL del `.NET`, tal como la ve el navegador (ej. `http://localhost:5000`). |
+| `VITE_CATALOG_API_URL` | Frontend | URL de Node, tal como la ve el navegador (ej. `http://localhost:4000`). |
 
 Ninguna credencial va hardcodeada en el código — todas se inyectan por variables de entorno (ver `docker-compose.yml`).
+
+**Nota sobre las variables del frontend:** Vite las sustituye en tiempo de **build**, no en runtime — por eso en `docker-compose.yml` se pasan como `build.args` del servicio `frontend`, no como `environment` (el contenedor final solo sirve archivos estáticos con nginx, ya no hay ningún proceso Node corriendo que pueda leer variables de entorno en runtime).
 
 ## Endpoints principales
 
@@ -88,6 +100,12 @@ Ninguna credencial va hardcodeada en el código — todas se inyectan por variab
 | GET | `/api/orders/{id}` | Consultar un pedido, con desglose de descuentos aplicados. |
 | GET | `/api/orders` | Listar pedidos (filtros: cliente, estado, rango de fechas, paginación). |
 | POST | `/api/orders/{id}/cancel` | Cancelar un pedido confirmado y liberar su stock reservado. |
+| GET | `/api/customers` | Listar clientes (solo lectura). Usado por el frontend para la sesión de cliente simulada — ver `DECISIONS.md`, punto 8. |
+| GET | `/api/coupons` | Listar cupones vigentes (no vencidos, solo lectura). El enunciado no pide creación de cupones, solo consumirlos. |
+
+## Manejo de errores
+
+Ambos backends devuelven el mismo shape de error: `{ message, code, details }` (requisito explícito de la sección 8 del enunciado). El `.NET` además tiene un manejador de errores global (`UseExceptionHandler` en `Program.cs`) que garantiza que **cualquier** excepción no capturada explícitamente en un controller siga devolviendo ese mismo shape (código `INTERNAL_ERROR`, HTTP 500) en vez de una respuesta abrupta sin body. El frontend tiene un único componente (`ErrorBanner`) que sabe leer ese shape sin importar de cuál de las dos APIs vino.
 
 ## Base de datos
 
@@ -109,4 +127,5 @@ dotnet test
 - [x] Servicio .NET (pedidos + motor de descuentos + pruebas unitarias).
 - [x] `DECISIONS.md` con las decisiones de diseño obligatorias.
 - [x] Frontend React (catálogo, crear pedido, historial), con `docker-compose up --build` levantando los 4 servicios.
-- [ ] Colección Postman (o exportar el OpenAPI de Swagger).
+- [x] Documentación de API: Swagger interactivo para `.NET` (`/swagger`), colección Postman para Node (`node-catalog/postman_collection.json`).
+- [x] Prueba de concurrencia real (no solo teórica) sobre la reserva de stock (`node-catalog/src/inventory.concurrency.test.js`).
